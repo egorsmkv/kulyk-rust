@@ -1,0 +1,4 @@
+<|im_start|>user
+Translate the text to English:
+Військові звільнили село Січневе на Дніпропетровщині, ліквідувавши 50 окупантів <|im_end|>
+<|im_start|>assistant
