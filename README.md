@@ -10,8 +10,12 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
 
 ## Models
 
-- Model with hyperparameters: https://huggingface.co/Yehor/kulyk-uk-en
-- GGUF Models: https://huggingface.co/mradermacher/kulyk-uk-en-GGUF
+- Models: 
+    - https://huggingface.co/Yehor/kulyk-uk-en
+    - https://huggingface.co/Yehor/kulyk-en-uk
+- GGUF Models:
+    - https://huggingface.co/mradermacher/kulyk-uk-en-GGUF
+    - https://huggingface.co/mradermacher/kulyk-en-uk-GGUF
 
 ## Build
 
@@ -26,9 +30,9 @@ cargo build --release
 just download_model
 
 # start web server
-./target/release/kulyk --verbose --threads 1 --threads-batch 1 --n-len 1024 models/kulyk-uk-en.Q8_0.gguf
+just run
 
-# open ui.html in your browser
+# open the ui.html file in your browser
 ```
 
 ## Acknowledgements
