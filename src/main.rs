@@ -302,7 +302,7 @@ async fn main() -> Result<()> {
         .with_state(model)
         .layer(cors);
 
-    let addr = "127.0.0.1:3000";
+    let addr = "0.0.0.0:3000";
     let listener = TcpListener::bind(addr).await.unwrap();
     info!("Server listening on http://{}", addr);
 
