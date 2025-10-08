@@ -6,7 +6,7 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
 
 ## Demo
 
-<img src="./screenshot.gif" width="700px"/>
+<a href="./screenshot.png"><img src="./screenshot.png" width="700px"/></a>
 
 ## Models
 
