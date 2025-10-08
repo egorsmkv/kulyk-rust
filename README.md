@@ -35,6 +35,12 @@ just run
 # open the ui.html file in your browser
 ```
 
+## Run using Docker
+
+```shell
+docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
+```
+
 ## Acknowledgements
 
 This project is based on the following repositories:
