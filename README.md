@@ -26,3 +26,9 @@ just download_model
 
 # open ui.html in your browser
 ```
+
+## Acknowledgements
+
+This project is based on the following repositories:
+
+- [`simple` example from llama-cpp-2](https://github.com/utilityai/llama-cpp-rs/tree/main/examples/simple)
