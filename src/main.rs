@@ -189,7 +189,7 @@ impl TranslationModel {
 
                 let output_bytes = self.model.token_to_bytes(token, Special::Tokenize)?;
                 let mut output_string = String::with_capacity(32);
-                decoder.decode_to_string(&output_bytes, &mut output_string, false);
+                let _ = decoder.decode_to_string(&output_bytes, &mut output_string, false);
                 final_translation.push_str(&output_string);
                 batch.clear();
                 batch.add(token, n_cur, &[0], true)?;
