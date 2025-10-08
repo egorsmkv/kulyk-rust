@@ -10,99 +10,119 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing::{error, info};
 
-use anyhow::{Context, Result, anyhow, bail};
+use anyhow::{Context, Result, bail};
 use clap::Parser;
 use llama_cpp_2::context::params::LlamaContextParams;
 use llama_cpp_2::llama_backend::LlamaBackend;
 use llama_cpp_2::llama_batch::LlamaBatch;
 use llama_cpp_2::model::LlamaModel;
 use llama_cpp_2::model::params::LlamaModelParams;
-use llama_cpp_2::model::params::kv_overrides::ParamOverrideValue;
 use llama_cpp_2::model::{AddBos, Special};
 use llama_cpp_2::sampling::LlamaSampler;
 use llama_cpp_2::{LogOptions, send_logs_to_tracing};
 
-use std::ffi::CString;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
-use std::pin::pin;
-use std::str::FromStr;
-use tower_http::cors::{Any, CorsLayer};
 use std::sync::Arc;
+use tower_http::cors::{Any, CorsLayer};
 
 #[derive(clap::Parser, Debug, Clone)]
 struct Args {
-    /// The path to the model
-    model_path: PathBuf,
-    /// set the length of the prompt + output in tokens
+    /// The path to the kulyk-uk-en model
+    #[arg(long, help = "Path to kulyk-uk-en model")]
+    model_path_ue: PathBuf,
+    /// The path to the kulyk-en-uk model
+    #[arg(long, help = "Path to kulyk-en-uk model")]
+    model_path_eu: PathBuf,
+    /// Set the length of the prompt + output in tokens
     #[arg(long, default_value_t = 32)]
     n_len: i32,
-    /// override some parameters of the model
-    #[arg(short = 'o', value_parser = parse_key_val)]
-    key_value_overrides: Vec<(String, ParamOverrideValue)>,
     /// Disable offloading layers to the gpu
     #[cfg(any(feature = "cuda", feature = "vulkan"))]
     #[clap(long)]
     disable_gpu: bool,
+    /// Seed value
     #[arg(short = 's', long, help = "RNG seed (default: 1234)")]
     seed: Option<u32>,
+    /// Number of threads
     #[arg(
         short = 't',
         long,
         help = "number of threads to use during generation (default: use all available threads)"
     )]
     threads: Option<i32>,
+    /// Number of threads for batching
     #[arg(
         long,
         help = "number of threads to use during batch and prompt processing (default: use all available threads)"
     )]
     threads_batch: Option<i32>,
+    /// Context size
     #[arg(
         short = 'c',
         long,
         help = "size of the prompt context (default: loaded from themodel)"
     )]
     ctx_size: Option<NonZeroU32>,
+    /// Enable verbose llama.cpp logs
     #[arg(short = 'v', long, help = "enable verbose llama.cpp logs")]
     verbose: bool,
 }
 
 struct TranslationModel {
     args: Args,
-    model: LlamaModel,
-    backend: LlamaBackend,
+    model_ue: LlamaModel,
+    backend_ue: LlamaBackend,
+    model_eu: LlamaModel,
+    // backend_eu: LlamaBackend,
 }
 
 impl TranslationModel {
     fn new(args: Args) -> Result<Self> {
-        let backend = LlamaBackend::init()?;
+        let model_ue: LlamaModel;
+        let backend_ue = LlamaBackend::init()?;
 
-        // offload all layers to the gpu
-        let model_params = {
-            #[cfg(any(feature = "cuda", feature = "vulkan"))]
-            if !disable_gpu {
-                LlamaModelParams::default().with_n_gpu_layers(1000)
-            } else {
+        let model_eu: LlamaModel;
+        // let backend_eu = LlamaBackend::init()?;
+
+        {
+            let model_params = {
+                #[cfg(any(feature = "cuda", feature = "vulkan"))]
+                if !disable_gpu {
+                    LlamaModelParams::default().with_n_gpu_layers(1000)
+                } else {
+                    LlamaModelParams::default()
+                }
+                #[cfg(not(any(feature = "cuda", feature = "vulkan")))]
                 LlamaModelParams::default()
-            }
-            #[cfg(not(any(feature = "cuda", feature = "vulkan")))]
-            LlamaModelParams::default()
-        };
+            };
 
-        let mut model_params = pin!(model_params);
-
-        for (k, v) in &args.key_value_overrides {
-            let k = CString::new(k.as_bytes()).with_context(|| format!("invalid key: {k}"))?;
-            model_params.as_mut().append_kv_override(k.as_c_str(), *v);
+            model_ue = LlamaModel::load_from_file(&backend_ue, &args.model_path_ue, &model_params)
+                .with_context(|| "unable to load model")?;
         }
 
-        let model = LlamaModel::load_from_file(&backend, &args.model_path, &model_params)
-            .with_context(|| "unable to load model")?;
+        {
+            let model_params = {
+                #[cfg(any(feature = "cuda", feature = "vulkan"))]
+                if !disable_gpu {
+                    LlamaModelParams::default().with_n_gpu_layers(1000)
+                } else {
+                    LlamaModelParams::default()
+                }
+                #[cfg(not(any(feature = "cuda", feature = "vulkan")))]
+                LlamaModelParams::default()
+            };
+
+            model_eu = LlamaModel::load_from_file(&backend_ue, &args.model_path_eu, &model_params)
+                .with_context(|| "unable to load model")?;
+        }
 
         Ok(Self {
             args,
-            model,
-            backend,
+            model_ue,
+            backend_ue,
+            model_eu,
+            // backend_eu,
         })
     }
 
@@ -112,6 +132,31 @@ impl TranslationModel {
             source_lang, target_lang
         );
 
+        let prompt = fill_prompt(text, target_lang);
+
+        info!("prompt: {}", prompt);
+
+        let translated_text = if source_lang == "uk" && target_lang == "en" {
+            self.translate_text(&self.backend_ue, &self.model_ue, prompt)?
+        } else if source_lang == "en" && target_lang == "uk" {
+            self.translate_text(&self.backend_ue, &self.model_eu, prompt)?
+        } else {
+            bail!(
+                "Unsupported translation direction: {} to {}",
+                source_lang,
+                target_lang
+            );
+        };
+
+        Ok(translated_text)
+    }
+
+    fn translate_text(
+        &self,
+        backend: &LlamaBackend,
+        model: &LlamaModel,
+        prompt: String,
+    ) -> Result<String> {
         let args = &self.args;
 
         // initialize the context
@@ -125,18 +170,12 @@ impl TranslationModel {
             ctx_params = ctx_params.with_n_threads_batch(threads_batch);
         }
 
-        let mut ctx = self
-            .model
-            .new_context(&self.backend, ctx_params)
+        let mut ctx = model
+            .new_context(backend, ctx_params)
             .with_context(|| "unable to create the llama_context")?;
 
-        let prompt = fill_prompt(text);
-
-        info!("prompt: {}", prompt);
-
         // tokenize the prompt
-        let tokens_list = self
-            .model
+        let tokens_list = model
             .str_to_token(&prompt, AddBos::Always)
             .with_context(|| format!("failed to tokenize {prompt}"))?;
 
@@ -175,7 +214,7 @@ impl TranslationModel {
             LlamaSampler::greedy(),
         ]);
 
-        let mut final_translation = String::new();
+        let mut output = String::new();
 
         while n_cur <= args.n_len {
             {
@@ -183,14 +222,15 @@ impl TranslationModel {
 
                 sampler.accept(token);
 
-                if self.model.is_eog_token(token) {
+                if model.is_eog_token(token) {
                     break;
                 }
 
-                let output_bytes = self.model.token_to_bytes(token, Special::Tokenize)?;
+                let output_bytes = model.token_to_bytes(token, Special::Tokenize)?;
                 let mut output_string = String::with_capacity(32);
                 let _ = decoder.decode_to_string(&output_bytes, &mut output_string, false);
-                final_translation.push_str(&output_string);
+                output.push_str(&output_string);
+
                 batch.clear();
                 batch.add(token, n_cur, &[0], true)?;
             }
@@ -200,7 +240,7 @@ impl TranslationModel {
             ctx.decode(&mut batch).with_context(|| "failed to eval")?;
         }
 
-        Ok(final_translation.trim().to_string())
+        Ok(output.trim().to_string())
     }
 }
 
@@ -218,29 +258,24 @@ struct TranslateResponse {
     target_lang: String,
 }
 
-/// Parse a single key-value pair
-fn parse_key_val(s: &str) -> Result<(String, ParamOverrideValue)> {
-    let pos = s
-        .find('=')
-        .ok_or_else(|| anyhow!("invalid KEY=value: no `=` found in `{}`", s))?;
-    let key = s[..pos].parse()?;
-    let value: String = s[pos + 1..].parse()?;
-    let value = i64::from_str(&value)
-        .map(ParamOverrideValue::Int)
-        .or_else(|_| f64::from_str(&value).map(ParamOverrideValue::Float))
-        .or_else(|_| bool::from_str(&value).map(ParamOverrideValue::Bool))
-        .map_err(|_| anyhow!("must be one of i64, f64, or bool"))?;
-
-    Ok((key, value))
-}
-
-fn fill_prompt(source: &str) -> String {
-    let prompt = format!(
-        "<|im_start|>user
+fn fill_prompt(text: &str, target: &str) -> String {
+    let prompt = if target == "en" {
+        format!(
+            "<|im_start|>user
 Translate the text to English:
-{source}<|im_end|>
+{text}<|im_end|>
 <|im_start|>assistant"
-    );
+        )
+    } else if target == "uk" {
+        format!(
+            "<|im_start|>user
+Translate the text to Ukrainian:
+{text}<|im_end|>
+<|im_start|>assistant"
+        )
+    } else {
+        panic!("Unsupported target language: {}", target);
+    };
 
     prompt
 }

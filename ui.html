@@ -10,6 +10,10 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Simple transition for button styles */
+        button {
+            transition: all 0.2s ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -19,12 +23,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
-                    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    <h1 class="text-xl font-semibold text-gray-700">Translator</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                     <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">V</div>
+                    <h1 id="header-title" class="text-xl font-semibold text-gray-700">Ukrainian <-> English Translator</h1>
                 </div>
             </div>
         </div>
@@ -32,62 +31,42 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Translation Type Tabs -->
-        <div class="flex space-x-1 border-b border-gray-300 mb-6">
-            <button class="flex items-center space-x-2 px-4 py-2 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-blue-50 rounded-t-md focus:outline-none">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h-3.246a1.2 1.2 0 01-1.2-1.2V5.2A1.2 1.2 0 019 4h6a1.2 1.2 0 011.2 1.2v7.8a1.2 1.2 0 01-1.2 1.2h-3.246m-2.062 4.5H18M6 21h2.846"></path></svg>
-                <span>Text</span>
-            </button>
-            <button class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <span>Images</span>
-            </button>
-            <button class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                <span>Documents</span>
-            </button>
-        </div>
 
         <!-- Translation Boxes -->
-        <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-8 items-start">
+        <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:gap-8 items-start relative">
             <!-- Input Box -->
             <div class="bg-white rounded-lg border border-gray-300 shadow-sm">
                 <!-- Language Selection -->
-                <div class="flex items-center border-b border-gray-200 p-2">
-                    <!-- <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Detect language</button> -->
-                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">Ukrainian</button>
-                    <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Spanish</button>
-                    <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">French</button>
-                    <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
+                <div id="input-lang-selector" class="flex items-center border-b border-gray-200 p-2 space-x-1">
+                    <button data-lang="uk" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md">Ukrainian</button>
+                    <button data-lang="en" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md">English</button>
                 </div>
                 <!-- Text Area -->
                 <div class="relative p-4 h-64">
-                    <textarea id="inputText" class="w-full h-full text-lg text-gray-700 placeholder-gray-400 resize-none focus:outline-none" placeholder="Enter text"></textarea>
-                    <div class="absolute bottom-4 left-4">
-                         <svg class="w-6 h-6 text-gray-400 cursor-pointer hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                    </div>
+                    <textarea id="inputText" class="w-full h-full text-lg text-gray-700 placeholder-gray-400 resize-none focus:outline-none bg-transparent" placeholder="Enter text"></textarea>
                     <div class="absolute bottom-4 right-4 text-sm text-gray-400">
                         <span id="charCount">0</span> / 5,000
                     </div>
                 </div>
             </div>
 
+            <!-- Swap Button -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 my-4 md:my-0">
+                 <button id="swap-lang-btn" class="flex items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" title="Swap languages">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                </button>
+            </div>
+
             <!-- Output Box -->
             <div class="bg-white rounded-lg border border-gray-300 shadow-sm mt-4 md:mt-0">
                 <!-- Language Selection -->
-                <div class="flex items-center border-b border-gray-200 p-2">
-                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">English</button>
-                    <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">English</button>
-                    <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Turkish</button>
-                    <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
+                <div id="output-lang-selector" class="flex items-center border-b border-gray-200 p-2 space-x-1">
+                     <button data-lang="uk" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md">Ukrainian</button>
+                     <button data-lang="en" class="lang-btn px-3 py-1.5 text-sm font-medium rounded-md">English</button>
                 </div>
                 <!-- Text Area -->
                 <div class="relative p-4 h-64">
-                    <div id="outputText" class="w-full h-full text-lg text-gray-800">
+                    <div id="outputText" class="w-full h-full text-lg text-gray-800 overflow-y-auto">
                         <span class="text-gray-400">Translation</span>
                     </div>
                 </div>
@@ -97,10 +76,20 @@
     </main>
 
     <script>
-        // Simple character count for the input textarea
+        // DOM Elements
         const inputText = document.getElementById('inputText');
-        const charCount = document.getElementById('charCount');
         const outputText = document.getElementById('outputText');
+        const charCount = document.getElementById('charCount');
+        const headerTitle = document.getElementById('header-title');
+        const swapLangBtn = document.getElementById('swap-lang-btn');
+        const inputLangSelector = document.getElementById('input-lang-selector');
+        const outputLangSelector = document.getElementById('output-lang-selector');
+
+        // State
+        let sourceLang = 'uk';
+        let targetLang = 'en';
+        
+        // --- Functions ---
 
         // Debounce function to avoid sending requests on every keystroke
         function debounce(func, delay) {
@@ -123,24 +112,17 @@
                 return;
             }
 
-            outputText.textContent = 'Translating...';
+            outputText.innerHTML = '<span class="text-gray-400">Translating...</span>';
 
             const payload = {
                 text: textToTranslate,
-                source_lang: 'uk', // This would be dynamic in a real app
-                target_lang: 'en', // This would be dynamic in a real app
+                source_lang: sourceLang,
+                target_lang: targetLang,
             };
-            const body = JSON.stringify(payload, null, 2);
-            const headers= {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-            };
-            let addr = "http://127.0.0.1:3000/translate";
 
-            let startTime = new Date();
+            const body = JSON.stringify(payload, null, 2);
+            const headers = { 'Content-Type': 'application/json' };
+            const addr = "http://127.0.0.1:3000/translate";
 
             try {
                 const response = await fetch(addr, {
@@ -157,16 +139,88 @@
                 console.error('Translation failed:', error);
                 outputText.textContent = 'Error: Could not translate.';
             }
-
-            const elapsed = new Date() - startTime;
-
-            console.log("Text:", textToTranslate);
-            console.info("Elapsed time:", elapsed, "ms");
         }
         
+        // Updates button styles based on the current language selection
+        function updateButtonStyles() {
+            const langMap = { 'uk': 'Ukrainian', 'en': 'English' };
+            headerTitle.textContent = `${langMap[sourceLang]} <-> ${langMap[targetLang]} Translator`;
+
+            // Style input buttons
+            document.querySelectorAll('#input-lang-selector .lang-btn').forEach(btn => {
+                if (btn.dataset.lang === sourceLang) {
+                    btn.classList.add('text-blue-600', 'bg-blue-100');
+                    btn.classList.remove('text-gray-500', 'hover:bg-gray-100');
+                } else {
+                    btn.classList.remove('text-blue-600', 'bg-blue-100');
+                    btn.classList.add('text-gray-500', 'hover:bg-gray-100');
+                }
+            });
+
+            // Style output buttons
+            document.querySelectorAll('#output-lang-selector .lang-btn').forEach(btn => {
+                if (btn.dataset.lang === targetLang) {
+                    btn.classList.add('text-blue-600', 'bg-blue-100');
+                    btn.classList.remove('text-gray-500', 'hover:bg-gray-100');
+                } else {
+                    btn.classList.remove('text-blue-600', 'bg-blue-100');
+                    btn.classList.add('text-gray-500', 'hover:bg-gray-100');
+                }
+            });
+        }
+        
+        // Swaps the source and target languages
+        function swapLanguages() {
+            [sourceLang, targetLang] = [targetLang, sourceLang]; // Swap languages
+            const tempText = inputText.value;
+            inputText.value = outputText.textContent;
+            // Avoid setting output to "Translation" or "Translating..."
+            if (tempText && tempText !== 'Translation' && tempText !== 'Translating...') {
+                 outputText.textContent = tempText;
+            } else {
+                 outputText.innerHTML = '<span class="text-gray-400">Translation</span>';
+            }
+            updateButtonStyles();
+            handleTranslation();
+        }
+
+        // --- Event Listeners ---
+
         // Add debounced event listener to the input field
         inputText.addEventListener('input', debounce(handleTranslation, 500));
+        
+        // Listener for swapping languages
+        swapLangBtn.addEventListener('click', swapLanguages);
+
+        // Listeners for language selection
+        inputLangSelector.addEventListener('click', (e) => {
+            if (e.target.classList.contains('lang-btn')) {
+                const selectedLang = e.target.dataset.lang;
+                if (sourceLang === selectedLang) return; // Do nothing if already selected
+                
+                sourceLang = selectedLang;
+                targetLang = (selectedLang === 'uk') ? 'en' : 'uk'; // Ensure target is the opposite
+                updateButtonStyles();
+                handleTranslation();
+            }
+        });
+
+        outputLangSelector.addEventListener('click', (e) => {
+             if (e.target.classList.contains('lang-btn')) {
+                const selectedLang = e.target.dataset.lang;
+                if (targetLang === selectedLang) return; // Do nothing if already selected
+
+                targetLang = selectedLang;
+                sourceLang = (selectedLang === 'uk') ? 'en' : 'uk'; // Ensure source is the opposite
+                updateButtonStyles();
+                handleTranslation();
+            }
+        });
+
+        // --- Initial Call ---
+        // Set initial button styles on page load
+        document.addEventListener('DOMContentLoaded', updateButtonStyles);
+
     </script>
 </body>
 </html>
-

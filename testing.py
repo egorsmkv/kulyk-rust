@@ -10,6 +10,13 @@ def call(text: str):
     print(resp.json())
 
 
+def call_back(text: str):
+    resp = requests.post(
+        addr, json={"text": text, "source_lang": "uk", "target_lang": "en"}
+    )
+    print(resp.json())
+
+
 if __name__ == "__main__":
     sentences_ukrainian = [
         "Привіт, світе!",
@@ -26,3 +33,19 @@ if __name__ == "__main__":
 
     for sent in sentences_ukrainian:
         call(sent)
+
+    sentences_english = [
+        "Hello, world!",
+        "How are you?",
+        "I'm learning Rust programming.",
+        "It's very interesting.",
+        "Thank you for your help.",
+        "Have a nice day!",
+        "Goodbye.",
+        "Glory to Ukraine!",
+        "Glory to the heroes!",
+        "Ukraine above all!",
+    ]
+
+    for sent in sentences_english:
+        call_back(sent)
