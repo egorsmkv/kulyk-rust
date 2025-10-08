@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rust Translator</title>
+    <title>Translator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
                     <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    <h1 class="text-xl font-semibold text-gray-700">Rust Translator</h1>
+                    <h1 class="text-xl font-semibold text-gray-700">Translator</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                      <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -55,7 +55,7 @@
                 <!-- Language Selection -->
                 <div class="flex items-center border-b border-gray-200 p-2">
                     <!-- <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Detect language</button> -->
-                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">English</button>
+                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">Ukrainian</button>
                     <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Spanish</button>
                     <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">French</button>
                     <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
@@ -78,7 +78,7 @@
             <div class="bg-white rounded-lg border border-gray-300 shadow-sm mt-4 md:mt-0">
                 <!-- Language Selection -->
                 <div class="flex items-center border-b border-gray-200 p-2">
-                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">Ukrainian</button>
+                    <button class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-md">English</button>
                     <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">English</button>
                     <button class="px-3 py-1.5 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-md">Turkish</button>
                     <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
@@ -125,43 +125,47 @@
 
             outputText.textContent = 'Translating...';
 
-            // --- Mock Backend POST Request ---
-            // In a real application, you would use fetch() to send this to your backend.
             const payload = {
                 text: textToTranslate,
-                sourceLanguage: 'en', // This would be dynamic in a real app
-                targetLanguage: 'uk', // This would be dynamic in a real app
+                source_lang: 'uk', // This would be dynamic in a real app
+                target_lang: 'en', // This would be dynamic in a real app
             };
+            const body = JSON.stringify(payload, null, 2);
+            const headers= {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            };
+            let addr = "http://127.0.0.1:3000/translate";
 
-            // Log the simulated request details to the console
-            console.log('--- Simulating POST request to backend ---');
-            console.log('Endpoint: /api/translate');
-            console.log('Method: POST');
-            console.log('Headers:', {
-                'Content-Type': 'application/json'
-            });
-            console.log('Body:', JSON.stringify(payload, null, 2));
-            console.log('-----------------------------------------');
+            let startTime = new Date();
 
-            // Simulate network delay and show a mock translation
-            setTimeout(() => {
-                const mockTranslatedText = textToTranslate.split('').reverse().join(''); // Mock translation
-                outputText.textContent = mockTranslatedText;
-                console.log('--- Mock response received ---');
-            }, 500);
+            try {
+                const response = await fetch(addr, {
+                    method: 'POST',
+                    headers: headers,
+                    body: body
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                outputText.textContent = data.translated_text;
+            } catch (error) {
+                console.error('Translation failed:', error);
+                outputText.textContent = 'Error: Could not translate.';
+            }
+
+            const elapsed = new Date() - startTime;
+
+            console.log("Text:", textToTranslate);
+            console.info("Elapsed time:", elapsed, "ms");
         }
         
         // Add debounced event listener to the input field
         inputText.addEventListener('input', debounce(handleTranslation, 500));
-
-        // Placeholder for swap button
-        const swapButton = document.getElementById('swapButton');
-        swapButton.addEventListener('click', () => {
-            // In a real app, this would swap the selected languages and re-translate.
-            // For now, it just provides a visual cue.
-            swapButton.classList.toggle('rotate-180');
-        });
-
     </script>
 </body>
 </html>

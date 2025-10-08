@@ -1,0 +1,28 @@
+import requests
+
+addr = "http://127.0.0.1:3000/translate"
+
+
+def call(text: str):
+    resp = requests.post(
+        addr, json={"text": text, "source_lang": "en", "target_lang": "uk"}
+    )
+    print(resp.json())
+
+
+if __name__ == "__main__":
+    sentences_ukrainian = [
+        "Привіт, світе!",
+        "Як справи?",
+        "Я вивчаю програмування на Rust.",
+        "Це дуже цікаво.",
+        "Дякую за допомогу.",
+        "Гарного дня!",
+        "До побачення.",
+        "Слава Україні!",
+        "Героям слава!",
+        "Україна понад усе!",
+    ]
+
+    for sent in sentences_ukrainian:
+        call(sent)
