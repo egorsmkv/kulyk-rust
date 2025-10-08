@@ -4,6 +4,10 @@ This is a Rust-based translator that utilizes the `llama-cpp-2` crate to inferen
 
 Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_ml
 
+## Demo
+
+<img src="./screenshot.gif" width="700px"/>
+
 ## Models
 
 - Model with hyperparameters: https://huggingface.co/Yehor/kulyk-uk-en
