@@ -43,7 +43,7 @@
                 </div>
                 <!-- Text Area -->
                 <div class="relative p-4 h-64">
-                    <textarea id="inputText" class="w-full h-full text-lg text-gray-700 placeholder-gray-400 resize-none focus:outline-none bg-transparent" placeholder="Enter text"></textarea>
+                    <textarea id="inputText" class="w-full h-full text-lg text-gray-700 placeholder-gray-400 resize-none focus:outline-none bg-transparent" placeholder="Enter text" maxlength="5000"></textarea>
                     <div class="absolute bottom-4 right-4 text-sm text-gray-400">
                         <span id="charCount">0</span> / 5,000
                     </div>
@@ -103,11 +103,11 @@
 
         // Handles the translation logic
         async function handleTranslation() {
-            const textToTranslate = inputText.value.trim();
-            const count = inputText.value.length;
+            const textToTranslate = inputText.value;
+            const count = textToTranslate.length;
             charCount.textContent = count;
 
-            if (textToTranslate === '') {
+            if (textToTranslate.trim() === '') {
                 outputText.innerHTML = '<span class="text-gray-400">Translation</span>';
                 return;
             }
@@ -120,9 +120,10 @@
                 target_lang: targetLang,
             };
 
-            const body = JSON.stringify(payload, null, 2);
+            const body = JSON.stringify(payload);
             const headers = { 'Content-Type': 'application/json' };
-            const addr = "http://127.0.0.1:3000/translate";
+            // Use a relative path to the API endpoint
+            const addr = "/translate";
 
             try {
                 const response = await fetch(addr, {
@@ -130,14 +131,17 @@
                     headers: headers,
                     body: body
                 });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                
                 const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                }
+                
                 outputText.textContent = data.translated_text;
             } catch (error) {
                 console.error('Translation failed:', error);
-                outputText.textContent = 'Error: Could not translate.';
+                outputText.textContent = `Error: Could not translate. ${error.message}`;
             }
         }
         
@@ -148,34 +152,32 @@
 
             // Style input buttons
             document.querySelectorAll('#input-lang-selector .lang-btn').forEach(btn => {
-                if (btn.dataset.lang === sourceLang) {
-                    btn.classList.add('text-blue-600', 'bg-blue-100');
-                    btn.classList.remove('text-gray-500', 'hover:bg-gray-100');
-                } else {
-                    btn.classList.remove('text-blue-600', 'bg-blue-100');
-                    btn.classList.add('text-gray-500', 'hover:bg-gray-100');
-                }
+                const isActive = btn.dataset.lang === sourceLang;
+                btn.classList.toggle('text-blue-600', isActive);
+                btn.classList.toggle('bg-blue-100', isActive);
+                btn.classList.toggle('text-gray-500', !isActive);
+                btn.classList.toggle('hover:bg-gray-100', !isActive);
             });
 
             // Style output buttons
             document.querySelectorAll('#output-lang-selector .lang-btn').forEach(btn => {
-                if (btn.dataset.lang === targetLang) {
-                    btn.classList.add('text-blue-600', 'bg-blue-100');
-                    btn.classList.remove('text-gray-500', 'hover:bg-gray-100');
-                } else {
-                    btn.classList.remove('text-blue-600', 'bg-blue-100');
-                    btn.classList.add('text-gray-500', 'hover:bg-gray-100');
-                }
+                const isActive = btn.dataset.lang === targetLang;
+                btn.classList.toggle('text-blue-600', isActive);
+                btn.classList.toggle('bg-blue-100', isActive);
+                btn.classList.toggle('text-gray-500', !isActive);
+                btn.classList.toggle('hover:bg-gray-100', !isActive);
             });
         }
         
         // Swaps the source and target languages
         function swapLanguages() {
-            [sourceLang, targetLang] = [targetLang, sourceLang]; // Swap languages
+            [sourceLang, targetLang] = [targetLang, sourceLang];
             const tempText = inputText.value;
-            inputText.value = outputText.textContent;
-            // Avoid setting output to "Translation" or "Translating..."
-            if (tempText && tempText !== 'Translation' && tempText !== 'Translating...') {
+            const outputContent = outputText.textContent;
+            
+            inputText.value = outputContent;
+            
+            if (tempText && !['Translation', 'Translating...'].includes(outputContent)) {
                  outputText.textContent = tempText;
             } else {
                  outputText.innerHTML = '<span class="text-gray-400">Translation</span>';
@@ -186,39 +188,42 @@
 
         // --- Event Listeners ---
 
-        // Add debounced event listener to the input field
         inputText.addEventListener('input', debounce(handleTranslation, 500));
-        
-        // Listener for swapping languages
         swapLangBtn.addEventListener('click', swapLanguages);
 
-        // Listeners for language selection
+        function setSourceLang(selectedLang) {
+            if (sourceLang === selectedLang) return;
+            sourceLang = selectedLang;
+            if (sourceLang === targetLang) {
+                targetLang = (selectedLang === 'uk') ? 'en' : 'uk';
+            }
+            updateButtonStyles();
+            handleTranslation();
+        }
+        
+        function setTargetLang(selectedLang) {
+            if (targetLang === selectedLang) return;
+            targetLang = selectedLang;
+             if (targetLang === sourceLang) {
+                sourceLang = (selectedLang === 'uk') ? 'en' : 'uk';
+            }
+            updateButtonStyles();
+            handleTranslation();
+        }
+
         inputLangSelector.addEventListener('click', (e) => {
             if (e.target.classList.contains('lang-btn')) {
-                const selectedLang = e.target.dataset.lang;
-                if (sourceLang === selectedLang) return; // Do nothing if already selected
-                
-                sourceLang = selectedLang;
-                targetLang = (selectedLang === 'uk') ? 'en' : 'uk'; // Ensure target is the opposite
-                updateButtonStyles();
-                handleTranslation();
+                setSourceLang(e.target.dataset.lang);
             }
         });
 
         outputLangSelector.addEventListener('click', (e) => {
              if (e.target.classList.contains('lang-btn')) {
-                const selectedLang = e.target.dataset.lang;
-                if (targetLang === selectedLang) return; // Do nothing if already selected
-
-                targetLang = selectedLang;
-                sourceLang = (selectedLang === 'uk') ? 'en' : 'uk'; // Ensure source is the opposite
-                updateButtonStyles();
-                handleTranslation();
+                setTargetLang(e.target.dataset.lang);
             }
         });
 
         // --- Initial Call ---
-        // Set initial button styles on page load
         document.addEventListener('DOMContentLoaded', updateButtonStyles);
 
     </script>

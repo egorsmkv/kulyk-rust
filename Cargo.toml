@@ -5,7 +5,8 @@ edition = "2024"
 license = "MIT"
 
 [dependencies]
-llama-cpp-2 = { version = "0.1.122" }
+llama-cpp-2 = { version = "0.1.122", features = ["openmp", "native"] }
+
 clap = { version = "*", features = ["derive"] }
 anyhow = { version = "*" }
 encoding_rs = { version = "*" }
