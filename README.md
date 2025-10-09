@@ -29,10 +29,8 @@ cargo build --release
 # this command will download a quantized GGUF model
 just download_model
 
-# start web server
+# start web server and navigate to http://localhost:3000 in your browser
 just run
-
-# open the ui.html file in your browser
 ```
 
 ## Run using Docker
