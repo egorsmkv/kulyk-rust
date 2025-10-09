@@ -42,6 +42,7 @@ docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
 ## High-Load test
 
 - Test set: https://huggingface.co/datasets/speech-uk/text-to-speech-sentences
+- Threads: 16
 - GPU: NVIDIA GeForce RTX 3090
 - Memory usage: 1188MiB
 
