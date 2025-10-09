@@ -45,7 +45,7 @@ docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
 - Threads: 16
 - GPU: NVIDIA GeForce RTX 3090
 - Memory usage: 1190MiB
-- Average inference speed per sentence: 0.0537 sec
+- Average inference speed per sentence: 0.0537 sec = 53.7 ms
 
 ## Acknowledgements
 
