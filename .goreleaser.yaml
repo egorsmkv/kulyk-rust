@@ -1,0 +1,29 @@
+version: 2
+
+project_name: kulyk
+
+before:
+  hooks:
+    - rustup default stable
+    - cargo fetch --locked
+
+env:
+  - CROSS_CONTAINER_ENGINE=docker
+  - CROSS_CONTAINER_OPTS=--platform=linux/amd64
+
+builds:
+  - builder: rust
+    id: kulyk
+    command: build
+    tool: cross
+    targets:
+      - x86_64-unknown-linux-gnu
+      - x86_64-apple-darwin
+      - aarch64-apple-darwin
+      - aarch64-unknown-linux-gnu
+
+universal_binaries:
+  - replace: false
+
+source:
+  enabled: false

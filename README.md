@@ -23,6 +23,23 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
 cargo build --release
 ```
 
+### Cross build
+
+#### Build images
+
+```
+docker build --platform=linux/amd64 -f dockerfiles/Dockerfile.aarch64-unknown-linux-gnu -t aarch64-unknown-linux-gnu:my-edge .
+docker build --platform=linux/amd64 -f dockerfiles/Dockerfile.x86_64-unknown-linux-gnu -t x86_64-unknown-linux-gnu:my-edge .
+```
+
+#### Build binaries
+
+```
+cargo install cross --git https://github.com/cross-rs/cross
+
+goreleaser build --clean --snapshot --id kulyk --timeout 60m
+```
+
 ## Usage
 
 ```shell
