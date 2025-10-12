@@ -1,3 +1,4 @@
 models/
 target/
 dist/
+.DS_Store
