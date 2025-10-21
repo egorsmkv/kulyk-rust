@@ -13,10 +13,6 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
 - Models: 
     - https://huggingface.co/Yehor/kulyk-uk-en
     - https://huggingface.co/Yehor/kulyk-en-uk
-- GGUF Models:
-    - https://huggingface.co/mradermacher/kulyk-uk-en-GGUF
-    - https://huggingface.co/mradermacher/kulyk-en-uk-GGUF
-
 
 ## Run using Docker (CPU)
 
