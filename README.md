@@ -33,7 +33,7 @@ Apptainer> /opt/entrypoints/kulyk --verbose --n-len 1024 --model-path-ue /projec
 2. Run it as a webservice:
 
 ```
-apptainer instance run --nv ./kulyk.sif kulyk-ws
+apptainer instance start --nv ./kulyk.sif kulyk-ws
 
 # go to http://localhost:3000
 ```
