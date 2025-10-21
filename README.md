@@ -20,12 +20,22 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
 docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
 ```
 
-## Run using Apptainer (CUDA)
+**Run using Apptainer (CUDA)**:
+
+1. Run it using shell:
 
 ```
-wget https://huggingface.co/Yehor/kulyk-sif/resolve/main/kulyk.sif
-
 apptainer shell --nv ./kulyk.sif
+
+Apptainer> /opt/entrypoints/kulyk --verbose --n-len 1024 --model-path-ue /project/models/kulyk-uk-en.gguf --model-path-eu /project/models/kulyk-en-uk.gguf
+```
+
+2. Run it as a webservice:
+
+```
+apptainer instance run --nv ./kulyk.sif kulyk-ws
+
+# go to http://localhost:3000
 ```
 
 ## Build
