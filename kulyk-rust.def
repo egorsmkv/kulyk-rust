@@ -1,0 +1,60 @@
+BootStrap: docker
+From: nvidia/cuda:13.0.1-cudnn-devel-ubuntu24.04
+
+%post
+    mkdir -p /project
+    mkdir -p /scratch
+    # Update package manager and install necessary packages
+    apt-get update && apt-get install -y --no-install-recommends \
+        curl vim htop wget git unzip \
+        ca-certificates \
+        libgomp1 \
+        clang libclang-dev \
+        build-essential cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+    # Set environment variables
+    echo "PATH=\"~/.local/bin:/usr/local/cuda/bin:\$PATH\"" >> /etc/environment
+    echo "LD_LIBRARY_PATH=\"/usr/local/cuda/lib64\"" >> /etc/environment
+
+    # Set additional environment variables
+    echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/cuda-12.4/compat/lib.real" >> /etc/environment
+    echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib/python3.10/dist-packages/nvidia/nvjitlink/lib" >> /etc/environment
+
+    # Install Rust
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+
+    # Source the cargo environment to make rustup and cargo available
+    . "$HOME/.cargo/env"
+
+    # Download models to a staging directory.
+    mkdir -p /project/models && \
+        wget -O /project/models/kulyk-uk-en.gguf "https://huggingface.co/Yehor/kulyk-uk-en/resolve/main/kulyk-uk-en-q8_0.gguf" && \
+        wget -O /project/models/kulyk-en-uk.gguf "https://huggingface.co/Yehor/kulyk-en-uk/resolve/main/kulyk-en-uk-q8_0.gguf"
+
+    # Create entrypoints directory
+    mkdir -p /opt/entrypoints
+
+    # Build Kulyk
+    wget https://github.com/egorsmkv/kulyk-rust/archive/refs/tags/v0.2.zip && \
+        unzip v0.2.zip && \
+        cd kulyk-rust-0.2 && cargo build -F cuda --release && \
+        mv target/release/kulyk /opt/entrypoints/kulyk && \
+        cd .. && \
+        rm -rf v0.2.zip kulyk-rust-0.2
+
+    # Optimize space
+    rustup self uninstall -y && \
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/* && \
+        strip -s /opt/entrypoints/kulyk
+
+%startscript
+    /opt/entrypoints/kulyk --verbose --n-len 1024 --model-path-ue /project/models/kulyk-uk-en.gguf --model-path-eu /project/models/kulyk-en-uk.gguf
+
+%environment
+    export PATH="~/.local/bin:/usr/local/cuda/bin:$HOME/.cargo/bin:$PATH"
+    export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+
+%help
+    This container provides the Kulyk Rust machine translation service.
