@@ -50,10 +50,18 @@ just download_models
 just run
 ```
 
-## Run using Docker
+## Run using Docker (CPU)
 
 ```shell
 docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
+```
+
+## Run using Apptainer (CUDA)
+
+```
+wget https://huggingface.co/Yehor/kulyk-sif/resolve/main/kulyk.sif
+
+apptainer shell --nv ./kulyk.sif
 ```
 
 ## High-Load test
