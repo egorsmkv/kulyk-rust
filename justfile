@@ -1,7 +1,7 @@
 download_models:
     mkdir -p models/
-    wget -O "models/kulyk-uk-en.Q8_0.gguf" "https://huggingface.co/mradermacher/kulyk-uk-en-GGUF/resolve/main/kulyk-uk-en.Q8_0.gguf"
-    wget -O "models/kulyk-en-uk.Q8_0.gguf" "https://huggingface.co/mradermacher/kulyk-en-uk-GGUF/resolve/main/kulyk-en-uk.Q8_0.gguf"
+    wget -O "models/kulyk-uk-en.Q8_0.gguf" "https://huggingface.co/Yehor/kulyk-uk-en/resolve/main/kulyk-uk-en-q8_0.gguf"
+    wget -O "models/kulyk-en-uk.Q8_0.gguf" "https://huggingface.co/Yehor/kulyk-en-uk/resolve/main/kulyk-en-uk-q8_0.gguf"
 
 build_release:
     cargo build --release
