@@ -17,6 +17,21 @@ Created for the Rustcamp 2025 Summer: https://github.com/rust-lang-ua/rustcamp_m
     - https://huggingface.co/mradermacher/kulyk-uk-en-GGUF
     - https://huggingface.co/mradermacher/kulyk-en-uk-GGUF
 
+
+## Run using Docker (CPU)
+
+```shell
+docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
+```
+
+## Run using Apptainer (CUDA)
+
+```
+wget https://huggingface.co/Yehor/kulyk-sif/resolve/main/kulyk.sif
+
+apptainer shell --nv ./kulyk.sif
+```
+
 ## Build
 
 ```shell
@@ -48,20 +63,6 @@ just download_models
 
 # start web server and navigate to http://localhost:3000 in your browser
 just run
-```
-
-## Run using Docker (CPU)
-
-```shell
-docker run -p 3000:3000 --rm ghcr.io/egorsmkv/kulyk-rust:latest
-```
-
-## Run using Apptainer (CUDA)
-
-```
-wget https://huggingface.co/Yehor/kulyk-sif/resolve/main/kulyk.sif
-
-apptainer shell --nv ./kulyk.sif
 ```
 
 ## High-Load test
