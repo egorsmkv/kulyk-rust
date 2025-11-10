@@ -29,19 +29,24 @@ struct Args {
     /// The path to the kulyk-uk-en model
     #[arg(long, help = "Path to kulyk-uk-en model")]
     model_path_ue: PathBuf,
+
     /// The path to the kulyk-en-uk model
     #[arg(long, help = "Path to kulyk-en-uk model")]
     model_path_eu: PathBuf,
+
     /// Set the length of the prompt + output in tokens
     #[arg(long, default_value_t = 32)]
     n_len: i32,
+
     /// Disable offloading layers to the gpu
     #[cfg(any(feature = "cuda", feature = "vulkan"))]
     #[clap(long)]
     disable_gpu: bool,
+
     /// Seed value
     #[arg(short = 's', long, help = "RNG seed (default: 1234)")]
     seed: Option<u32>,
+
     /// Number of threads
     #[arg(
         short = 't',
@@ -49,12 +54,14 @@ struct Args {
         help = "number of threads to use during generation (default: use all available threads)"
     )]
     threads: Option<i32>,
+
     /// Number of threads for batching
     #[arg(
         long,
         help = "number of threads to use during batch and prompt processing (default: use all available threads)"
     )]
     threads_batch: Option<i32>,
+
     /// Context size
     #[arg(
         short = 'c',
@@ -62,9 +69,14 @@ struct Args {
         help = "size of the prompt context (default: loaded from themodel)"
     )]
     ctx_size: Option<NonZeroU32>,
+
     /// Enable verbose llama.cpp logs
     #[arg(short = 'v', long, help = "enable verbose llama.cpp logs")]
     verbose: bool,
+
+    /// Port number for the server
+    #[arg(short = 'p', long, help = "Port number for the server (default: 3000)")]
+    port: Option<u16>,
 }
 
 struct TranslationModel {
@@ -164,7 +176,9 @@ impl TranslationModel {
         let n_kv_req = tokens_list.len() as i32 + (args.n_len - tokens_list.len() as i32);
 
         if n_kv_req > n_cxt {
-            bail!("n_kv_req > n_ctx, the required kv cache size is not big enough; either reduce n_len or increase n_ctx");
+            bail!(
+                "n_kv_req > n_ctx, the required kv cache size is not big enough; either reduce n_len or increase n_ctx"
+            );
         }
         if tokens_list.len() >= usize::try_from(args.n_len)? {
             bail!("the prompt is too long, it has more tokens than n_len");
@@ -250,6 +264,8 @@ async fn main() -> Result<()> {
     }
     send_logs_to_tracing(LogOptions::default().with_logs_enabled(args.verbose));
 
+    let port: u16 = args.port.unwrap_or(3000);
+
     let model = Arc::new(TranslationModel::new(args)?);
 
     let cors = CorsLayer::new()
@@ -263,8 +279,8 @@ async fn main() -> Result<()> {
         .with_state(model)
         .layer(cors);
 
-    let addr = "0.0.0.0:3000";
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let addr = format!("0.0.0.0:{}", port);
+    let listener = TcpListener::bind(&addr).await.unwrap();
     info!("Server listening on http://{}", addr);
 
     axum::serve(listener, app.into_make_service())

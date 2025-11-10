@@ -1,11 +1,12 @@
+
 [package]
 name = "kulyk"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
-llama-cpp-2 = { version = "0.1.122", features = ["openmp", "native"] }
+llama-cpp-2 = { version = "0.1.124", features = ["openmp", "native"] }
 
 clap = { version = "*", features = ["derive"] }
 anyhow = { version = "*" }
@@ -15,7 +16,7 @@ tracing = { version = "*" }
 tracing-subscriber = { version = "*" }
 
 axum = "0.8.6"
-tokio = { version = "1.47.1", features = ["full"] }
+tokio = { version = "1.48.0", features = ["full"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 tower-http = { version = "0.6.6", features = ["cors"] }
