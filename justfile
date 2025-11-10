@@ -7,4 +7,4 @@ build_release:
     cargo build --release
 
 run: build_release
-    ./target/release/kulyk --verbose --threads 1 --threads-batch 1 --n-len 1024 --model-path-ue models/kulyk-uk-en.Q8_0.gguf --model-path-eu models/kulyk-en-uk.Q8_0.gguf
+    ./target/release/kulyk --port 3021 --verbose --threads 1 --threads-batch 1 --n-len 1024 --model-path-ue models/kulyk-uk-en.Q8_0.gguf --model-path-eu models/kulyk-en-uk.Q8_0.gguf
